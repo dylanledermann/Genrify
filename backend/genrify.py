@@ -1,20 +1,20 @@
-import os, sys, collections, spotipy
+import os, collections, spotipy, time
 
 from spotipy.oauth2 import SpotifyOAuth
 
+# 1 1 1.2658711099647917
+# 1 1 0.6618555770255625 removed enumerate
 
 # Function to get selected genre and track IDs from Saved Albums
 def tracksFromSavedAlbums():
-
+    startTime = time.perf_counter()
     # Get Album IDs and Artist IDs from Saved Albums
     albumIds = []
     artistsIds = []
     saved_albums = spotify.current_user_saved_albums(limit=50, offset=0, market=None)
-    for idx, album in enumerate(saved_albums['items']):
-        albumid = album['album']['id']
-        albumIds.append(albumid)
-        artistid = album['album']['artists'][0]['id']
-        artistsIds.append(artistid)
+    for album in saved_albums['items']:
+        albumIds.append(album['album']['id'])
+        artistsIds.append(album['album']['artists'][0]['id'])
     
     # Get Genres from list of Artist IDs
     # Create list of Album Genres corresponding to Artist ID list
@@ -42,7 +42,13 @@ def tracksFromSavedAlbums():
         i+=1
     print("")
     print("Select Genre:")
+
+    tBefore = time.perf_counter()
+
     selection = int((input()))-1
+
+    tSelection = time.perf_counter() - tBefore
+
     selectedGenre = sortedAlbumGenres[selection][0]
 
     # Go through Album Genre list and add to
@@ -57,7 +63,7 @@ def tracksFromSavedAlbums():
     selectedTrackIds = []
     selectedTrackNames = []
     albumData = spotify.albums(selectedAlbumIds)
-    for idx, album in enumerate(albumData['albums']):
+    for album in albumData['albums']:
         for track in album['tracks']['items']:
             selectedArtists.append(track['artists'][0]['name'])
             selectedTrackIds.append(track['id'])
@@ -65,14 +71,19 @@ def tracksFromSavedAlbums():
     
     # Print total number of selected tracks
     os.system('clear')
+    print(f'Time taken: { (time.perf_counter() - startTime - tSelection) }')
     print(f"{len(selectedTrackNames)} tracks to add for selected genre: {selectedGenre}")
     print("")
 
     return selectedGenre, selectedTrackIds, selectedTrackNames
 
+# 2 1 1 Time taken: 0.9252715329930652
+# 2 1 1 0.7895185029774439 removed enumerate
 # Function to get Selected Genre and Track IDs from selected playlist
 def tracksFromPlaylists():
     
+    startTime = time.perf_counter()
+
     # Get list of playlists
     playlists = spotify.current_user_playlists()
 
@@ -80,7 +91,7 @@ def tracksFromPlaylists():
     playlistIds = []
     playlistNames = []
     playlistTotals = []
-    for idx, playlist in enumerate(playlists['items']):
+    for playlist in playlists['items']:
         playlistIds.append(playlist['id'])
         playlistNames.append(playlist['name'])
         playlistTotals.append(playlist['tracks']['total'])
@@ -97,10 +108,16 @@ def tracksFromPlaylists():
     # Allow user to choose a Playlist for processing adn get track info from Playlist
     print("")
     print('Select Playlist:')
+
+    tBefore = time.perf_counter()
+
     selection = int(input())-1
+
+    tSelection = time.perf_counter() - tBefore
+
     selectedPlaylistId = playlistIds[selection]
     results = spotify.playlist(selectedPlaylistId, fields=None, market=None, additional_types=('track',))
-
+    
     #Retrieve and store info on tracks from Playlist
     tracks = []
     trackIds = []
@@ -142,7 +159,13 @@ def tracksFromPlaylists():
     # Allow user to choose a genre
     print("")
     print("Select genre:")
+
+    tBefore = time.perf_counter()
+
     selection = int(input())-1
+
+    tSelection += time.perf_counter() - tBefore
+
     print('')
     selectedGenre = sortedPlaylistGenres[selection][0]
 
@@ -160,13 +183,18 @@ def tracksFromPlaylists():
     
     # Print total number of selected tracks
     os.system('clear')
+    print(f'Time taken: { (time.perf_counter()-startTime-tSelection) }')
     print(f'{len(selectedTrackNames)} tracks to add for selected genre: {selectedGenre}')
     print("")
     
     return selectedGenre, selectedTrackIds, selectedTrackNames
 
+# 2 1 1 2 0.4597642839944456
+
 # Function to create a playlist given the genre and track IDs
 def createPlaylist(selectedGenre, selectedTrackIds):
+
+    startTime = time.perf_counter()
 
     # Create Playlist and get Playlist ID
     playlistName = "[Genrify]" + selectedGenre
@@ -180,11 +208,17 @@ def createPlaylist(selectedGenre, selectedTrackIds):
     spotify.playlist_replace_items(playlistId, selectedTrackIds)
 
     print("")
+    print(f'Time Taken: { (time.perf_counter() - startTime) }')
     print(f'Playlist {playlistName} created and {len(selectedTrackIds)} tracks added')
+
+# 1 1 0.9180544260016177
+# 
 
 # Function to add to Queue
 def addToQueue(selectedGenre, selectedTrackIds, selectedTrackNames):
     
+    startTime = time.perf_counter()
+
     print("")
     print(f'Adding {len(selectedTrackIds)} {selectedGenre} tracks to Queue')
     print("")
@@ -192,6 +226,8 @@ def addToQueue(selectedGenre, selectedTrackIds, selectedTrackNames):
     # Add tracks to Queue
     for trackId in selectedTrackIds:
         spotify.add_to_queue(trackId, device_id=None)
+
+    print(f'Time Taken: { (time.perf_counter() - startTime) }')
 
 # Spotify authorization scopes
 scope = 'user-library-read user-follow-read user-modify-playback-state playlist-read-private playlist-modify-private'
