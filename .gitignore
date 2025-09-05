@@ -1,3 +1,7 @@
 *.cache
 */setup
+*/removesetup
 */.venv
+*.env
+*/__pycache__
+*/instance
