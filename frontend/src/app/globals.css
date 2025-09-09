@@ -5,6 +5,13 @@
   --foreground: #171717;
 }
 
+@theme {
+  --color-button: #1db954;
+  --color-primary: #121212;
+  --color-secondary: #212121;
+  --color-tertiary: #535353;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -14,7 +21,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: var(--color-primary);
     --foreground: #ededed;
   }
 }
@@ -23,4 +30,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.btn-primary {
+  @apply w-fit font-medium bg-button text-black shadow-lg px-5 py-2 rounded-md my-1 cursor-pointer hover:bg-tertiary;
 }
