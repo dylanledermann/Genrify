@@ -1,13 +1,13 @@
 from flask import request, jsonify, session, redirect
-from config import app, db
-from utils import spOAuth, sp, checkTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService
+from config import app, db, cache
+from utils import cache_handler, spOAuth, sp, checkTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService
 # Get spotify login
 @app.route("/api/login")
 def login():
     redir = checkTokenService()
-    return redirect(redir) if redir else redirect('/api/profile')
+    return jsonify({'redirect': redir})
 
-@app.route("/api/logout", methods=['POST'])
+@app.route("/api/logout")
 def logout():
     session.clear()
     return redirect("/api/login")
@@ -20,42 +20,42 @@ def callback():
         return jsonify({"message": "No code given"}), 400
     # getTokenService()
     spOAuth.get_access_token(code, as_dict=True)
-    return redirect("/api/profile")
+    frontend_loc = "http://localhost:3000/profile"
+    return redirect(frontend_loc)
 
 # Get all info needed for the user's profile
 @app.route("/api/profile", methods=["GET"])
 def profile():
     redir = checkTokenService()
-    if redir:
-        return redirect(redir)
+    if redir != "http://127.0.0.1:3000/profile":
+        return jsonify({'error': 'Unauthorized'}), 401
     userProfile = sp.current_user()
     return jsonify({'userProfile': userProfile})
 
 # Get 50 most played songs and their genres
-@app.route('/api/top', methods=['GET'])
-def get_playlists():
+@app.route('/api/playlist', methods=['GET'])
+def get_playlist():
     redir = checkTokenService()
-    if redir:
-        return redirect(redir)
-    tracks, orderedTracks = getTopSongsService()
+    if redir != "http://127.0.0.1:3000/profile":
+        return jsonify({'message': 'Unauthorized'}), 401
+    id = request.args.get('q')
+    if id:
+        playlist, tracks, orderedTracks = getPlaylistService(id)
+    else:
+        playlist = 'Top Songs'
+        tracks, orderedTracks = getTopSongsService()
     artists = getGenresService(list(tracks.keys()))
-    return jsonify({'tracks': orderedTracks, 'artistsTracks': tracks, 'artistsGenres': artists})
+    return jsonify({'playlist': playlist,'tracks': orderedTracks, 'artistsTracks': tracks, 'artistsGenres': artists})
 
 # Get users playlists
-@app.route('/api/playlists', method=['GET'])
+@app.route('/api/playlists', methods=['GET'])
 def get_playlists():
     redir = checkTokenService()
-    if redir:
-        return redirect(redir)
+    if redir != "http://127.0.0.1:3000/profile":
+        return jsonify({'message': 'Unauthorized'}), 401
     playlists = getPlaylistsService()
     return jsonify({'playlists': playlists})
 
-# Search for playlist from user's spotify
-@app.route("/api/search", methods=["GET"])
-def get_playlist():
-    id = request.args.get('q')
-    playlist = getPlaylistService(id)
-    return jsonify({'playlist': playlist})
 # Extra endpoints that can be added
 # # Create playlist from genre
 # @app.route("/api/playlist", methods=['GET'])
