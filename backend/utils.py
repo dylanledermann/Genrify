@@ -17,21 +17,35 @@ def setTokenService(code):
     session['token_info'] = token
 
 def getTokenService():
-    tokenInfo = cache_handler.get_cached_token()
+    tokenInfo = session.get('token_info', None)
     if not tokenInfo:
         return None
     now = int(time.time())
     isExpired = tokenInfo['expires_at'] - now < 60
     if isExpired:
-        tokenInfo = spOAuth.refresh_access_token(tokenInfo['refresh_token'])
-        session["token_info"] = tokenInfo
-    return tokenInfo
+        spOAuth = SpotifyOAuth(
+            client_id = CLIENT_ID, 
+            client_secret = CLIENT_SECRET,
+            redirect_uri = REDIRECT_URI,
+            scope=SCOPE,
+            show_dialog=True
+        )
+        tokenInfo = spOAuth.refresh_access_token(tokenInfo['token_info']['refresh_token'])
+    return tokenInfo['token_info']['access_token']
 
 def checkTokenService():
-    if not spOAuth.validate_token(cache_handler.get_cached_token()):
+    tokenInfo = getTokenService()
+    if not tokenInfo:
+        spOAuth = SpotifyOAuth(
+            client_id = CLIENT_ID, 
+            client_secret = CLIENT_SECRET,
+            redirect_uri = REDIRECT_URI,
+            scope=SCOPE,
+            show_dialog=True
+        )
         authURL = spOAuth.get_authorize_url()
-        return authURL
-    return "http://127.0.0.1:3000/profile"
+        return None, authURL
+    return True, "http://127.0.0.1:3000/profile"
 
 def getCurrentUserService():
     sp = spotipy.Spotify(auth=getTokenService())
