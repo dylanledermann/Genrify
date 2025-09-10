@@ -19,11 +19,10 @@ const PlaylistProvider = ({children, name, list}: {children: React.ReactNode, na
     
     useEffect(() => {
         setPlaylistName(name);
-    }, [name]);
-
-    useEffect(() => {
+        setGenre('');
+        setGenreList(null);
         setPlaylist(list);
-    }, [list]);
+    }, [name]);
 
     const setG = (name: string='', list: String[][] | null=null) => {
         setGenre(name);

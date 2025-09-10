@@ -12,7 +12,7 @@ type Props = {
 const PlaylistCard = () => {
     const playlistContext = useContext(PlaylistContext);
     return(
-        <div className="col-span-1 flex flex-col p-3 bg-secondary rounded-lg">
+        <div className="lg:col-span-1 col-span-2 flex flex-col p-3 bg-secondary rounded-lg">
             <div className="text-center w-full">
                 <div className="text-xl">
                     {playlistContext?.genre || playlistContext?.playlistName}

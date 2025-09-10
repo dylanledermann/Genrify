@@ -1,8 +1,11 @@
+import Navbar from "@/components/Navbar";
 
 
 export default function Home() {
 
   return (
+    <>
+      <Navbar/>
       <div className='h-full bg-secondary m-5 p-2 rounded-lg'>
         <h1 className='text-2xl pb-5'>
           Welcome to {''}
@@ -16,5 +19,6 @@ export default function Home() {
           You can use this project to see the genres of songs in your playlist and most listened to songs.
         </p>
       </div>
+    </>
   );
 }

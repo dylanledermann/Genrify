@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import PlaylistInfo from "@/components/PlaylistInfo";
 import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
 import { redirect } from "next/navigation";
@@ -20,6 +21,9 @@ export default async function Profile({
                 }
             }
         ).catch(error => console.log('An error occured'));
+        if(res?.profilePicture.length === 0){
+            res.profilePicture = res.userProfile[0].toUpperCase();
+        }
         return res;
     }
     const profile = await getProfile();
@@ -27,11 +31,14 @@ export default async function Profile({
         redirect("/");
     }
     return (
-        <div className="mx-5">
-            <div className="text-2xl pb-5">
-                Welcome Back, {profile?.userProfile?.display_name}
+        <>
+            <Navbar/>
+            <div className="mx-5">
+                <div className="text-2xl pb-5">
+                    Welcome Back, {profile?.userProfile}
+                </div>
+                <PlaylistInfo search={params}/>
             </div>
-            <PlaylistInfo search={params}/>
-        </div>
+        </>
     )
 }
