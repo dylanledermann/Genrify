@@ -1,60 +1,52 @@
-import time, spotipy
+import spotipy, time, spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import RedisCacheHandler
-from config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE
+from config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE, cache
 from flask import session
-from collections import defaultdict
+from collections import defaultdict, Counter
 
-def setTokenService(code):
-    spOAuth = SpotifyOAuth(
-        client_id = CLIENT_ID, 
-        client_secret = CLIENT_SECRET,
-        redirect_uri = REDIRECT_URI,
-        scope=SCOPE,
-        show_dialog=True
-    )
-    token = spOAuth.get_access_token(code, as_dict=True)
-    session['token_info'] = token
+cache_handler=RedisCacheHandler(cache)
+spOAuth = SpotifyOAuth(
+    client_id = CLIENT_ID, 
+    client_secret = CLIENT_SECRET,
+    redirect_uri = REDIRECT_URI,
+    scope=SCOPE,
+    cache_handler=cache_handler,
+    cache_path=None,
+    show_dialog=True
+)
+
+sp = spotipy.Spotify(auth_manager=spOAuth)
+
+def setTokenService(token):
+    cache_handler.save_token_to_cache(token)
+    print(cache_handler.get_cached_token())
 
 def getTokenService():
-    tokenInfo = session.get('token_info', None)
+    tokenInfo = cache_handler.get_cached_token()
+    print(tokenInfo)
     if not tokenInfo:
         return None
     now = int(time.time())
     isExpired = tokenInfo['expires_at'] - now < 60
     if isExpired:
-        spOAuth = SpotifyOAuth(
-            client_id = CLIENT_ID, 
-            client_secret = CLIENT_SECRET,
-            redirect_uri = REDIRECT_URI,
-            scope=SCOPE,
-            show_dialog=True
-        )
-        tokenInfo = spOAuth.refresh_access_token(tokenInfo['token_info']['refresh_token'])
-    return tokenInfo['token_info']['access_token']
+        tokenInfo = spOAuth.refresh_access_token(tokenInfo['refresh_token'])
+        print(tokenInfo)
+        print(cache_handler.get_cached_token())
+        setTokenService(tokenInfo)
+    return tokenInfo
 
 def checkTokenService():
-    tokenInfo = getTokenService()
-    if not tokenInfo:
-        spOAuth = SpotifyOAuth(
-            client_id = CLIENT_ID, 
-            client_secret = CLIENT_SECRET,
-            redirect_uri = REDIRECT_URI,
-            scope=SCOPE,
-            show_dialog=True
-        )
-        authURL = spOAuth.get_authorize_url()
-        return None, authURL
+    if not spOAuth.validate_token(cache_handler.get_cached_token()):
+        tokenInfo = getTokenService()
+        if not tokenInfo:
+            authURL = spOAuth.get_authorize_url()
+            return False, authURL
     return True, "http://127.0.0.1:3000/profile"
-
-def getCurrentUserService():
-    sp = spotipy.Spotify(auth=getTokenService())
-    return sp.current_user()
 
 def getTopSongsService(): 
     t = defaultdict(list)
     orderedTracks = []
-    sp = spotipy.Spotify(auth=getTokenService())
     tracks = sp.current_user_top_tracks(limit=50, time_range='short_term')
     for track in tracks['items']:
         artistId = track['artists'][0]['id']
@@ -70,7 +62,6 @@ def getTopSongsService():
     
 def getGenresService(artists):
     artistDict = {}
-    sp = spotipy.Spotify(auth=getTokenService())
     artistsRes = sp.artists(artists)
     for a in artistsRes['artists']:
         artistDict[a['id']]=({
@@ -81,7 +72,6 @@ def getGenresService(artists):
 
 def getPlaylistsService():
     playlists = []
-    sp = spotipy.Spotify(auth=getTokenService())
     req = sp.current_user_playlists()
     for playlist in req['items']:
         playlists.append({
@@ -94,7 +84,6 @@ def getPlaylistsService():
 def getPlaylistService(playlistId):
     t = defaultdict(list)
     orderedTracks = []
-    sp = spotipy.Spotify(auth=getTokenService())
     tracks = sp.playlist(playlistId, fields=None, market=None, additional_types=('track',))
     for item in tracks['tracks']['items']:
         track = item['track']

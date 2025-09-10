@@ -4,9 +4,7 @@ import Link from "next/link";
 
 const PlaylistsCard = async () => {
     const getPlaylists = async () => {
-        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLISTS, {
-            credentials: 'include'
-        }).then(
+        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLISTS).then(
             res => {
                 if(res.ok){
                     return res.json()

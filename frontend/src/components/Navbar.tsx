@@ -6,14 +6,10 @@ const Navbar = async () => {
 
     const handleLogin = async () => {
         try{
-            const data = await fetch(BASE_URL + API_PATHS.LOGIN, {
-                credentials: 'include'
-            }).then(res => res.json());
+            const data = await fetch(BASE_URL + API_PATHS.LOGIN).then(res => res.json());
             var pfp = '';
             if(data.auth){
-                const res = await fetch(BASE_URL + API_PATHS.PROFILE, {
-                    credentials: 'include'
-                }).then(
+                const res = await fetch(BASE_URL + API_PATHS.PROFILE).then(
                     res => {
                         if(res.ok){
                             return res.json()

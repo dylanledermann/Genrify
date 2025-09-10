@@ -18,9 +18,7 @@ const PlaylistInfo = async ({search}: Props) => {
         if(search && 'search' in search){
             query=search['search'];
         }
-        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLIST + '?q=' + query, {
-            credentials: 'include'
-        })
+        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLIST + '?q=' + query)
             .then(
                 res => {
                     if(res.ok){
