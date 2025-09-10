@@ -1,18 +1,16 @@
-import spotipy
-from flask import request, jsonify, redirect, session
-from config import app
-from utils import checkTokenService, getCurrentUserService, getTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService, setTokenService
+from flask import request, jsonify, session, redirect
+from config import app, db, cache
+from utils import cache_handler, spOAuth, sp, checkTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService
 # Get spotify login
 @app.route("/api/login")
 def login():
-    auth, redir = checkTokenService()
-    return jsonify({'auth': auth, 'redirect': redir})
+    redir = checkTokenService()
+    return jsonify({'redirect': redir})
 
 @app.route("/api/logout")
 def logout():
-    # redis_client.delete('flask_cache_token_info')
     session.clear()
-    return jsonify({})
+    return redirect("/api/login")
 
 # Callback for spotipy
 @app.route("/api/callback", methods=['GET'])
@@ -27,30 +25,26 @@ def callback():
     code = request.args.get("code")
     if not code:
         return jsonify({"message": "No code given"}), 400
-    setTokenService(code)
+    # getTokenService()
+    spOAuth.get_access_token(code, as_dict=True)
     frontend_loc = "http://localhost:3000/profile"
     return redirect(frontend_loc)
 
 # Get all info needed for the user's profile
 @app.route("/api/profile", methods=["GET"])
 def profile():
-    print(f"Session ID in profile: {session.sid if hasattr(session, 'sid') else 'No SID'}")
-    print(f"Session contents in profile: {dict(session)}")
-    print(f"Request headers: {dict(request.headers)}")
-    print(f"Cookies in request: {request.cookies}")
-
-    auth, redir = checkTokenService()
-    if not auth:
+    redir = checkTokenService()
+    if redir != "http://127.0.0.1:3000/profile":
         return jsonify({'error': 'Unauthorized'}), 401
-    userProfile = getCurrentUserService()
-    return jsonify({'userProfile': userProfile['display_name'], 'profilePicture': userProfile['images']})
+    userProfile = sp.current_user()
+    return jsonify({'userProfile': userProfile})
 
 # Get 50 most played songs and their genres
 @app.route('/api/playlist', methods=['GET'])
 def get_playlist():
-    auth, redir = checkTokenService()
-    if not auth:
-        return jsonify({'error': 'Unauthorized'}), 401
+    redir = checkTokenService()
+    if redir != "http://127.0.0.1:3000/profile":
+        return jsonify({'message': 'Unauthorized'}), 401
     id = request.args.get('q')
     if id:
         playlist, tracks, orderedTracks = getPlaylistService(id)
@@ -63,9 +57,9 @@ def get_playlist():
 # Get users playlists
 @app.route('/api/playlists', methods=['GET'])
 def get_playlists():
-    auth, redir = checkTokenService()
-    if not auth:
-        return jsonify({'error': 'Unauthorized'}), 401
+    redir = checkTokenService()
+    if redir != "http://127.0.0.1:3000/profile":
+        return jsonify({'message': 'Unauthorized'}), 401
     playlists = getPlaylistsService()
     return jsonify({'playlists': playlists})
 
