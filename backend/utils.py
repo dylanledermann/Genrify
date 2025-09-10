@@ -24,20 +24,25 @@ def setTokenService(token):
 
 def getTokenService():
     tokenInfo = cache_handler.get_cached_token()
+    print(tokenInfo)
     if not tokenInfo:
         return None
     now = int(time.time())
     isExpired = tokenInfo['expires_at'] - now < 60
     if isExpired:
         tokenInfo = spOAuth.refresh_access_token(tokenInfo['refresh_token'])
-        session["token_info"] = tokenInfo
+        print(tokenInfo)
+        print(cache_handler.get_cached_token())
+        setTokenService(tokenInfo)
     return tokenInfo
 
 def checkTokenService():
     if not spOAuth.validate_token(cache_handler.get_cached_token()):
-        authURL = spOAuth.get_authorize_url()
-        return authURL
-    return "http://127.0.0.1:3000/profile"
+        tokenInfo = getTokenService()
+        if not tokenInfo:
+            authURL = spOAuth.get_authorize_url()
+            return False, authURL
+    return True, "http://127.0.0.1:3000/profile"
 
 def getTopSongsService(): 
     t = defaultdict(list)
