@@ -1,8 +1,8 @@
 import React from 'react'
 type Props = {
     number: number,
-    artist: String,
-    track: String
+    artist: string,
+    track: string
 }
 const SongCard = ({number, artist, track}: Props) => {
   return (

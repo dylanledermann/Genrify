@@ -1,8 +1,10 @@
 import Navbar from "@/components/Navbar";
+import { cookies } from "next/headers";
 
 
-export default function Home() {
-
+export default async function Home() {
+  const cookieStore = cookies();
+  console.log((await cookieStore).getAll());
   return (
     <>
       <Navbar/>
@@ -14,8 +16,8 @@ export default function Home() {
           </span>
         </h1>
         <p className="text-lg">
-          This web application was built using Spotify's Web API with the Spotipy library. 
-          This project was inspired and built with help from Matt Brocks <a className='text-button hover:underline' href='https://blog.cetre.co.uk/genrify-python-app-to-filter-spotify-library-based-on-genre/'>Genrify</a>.
+          This web application was built using Spotify&apos;s Web API with the Spotipy library. 
+          This project was inspired and built with help from Matt Brock&apos;s <a className='text-button hover:underline' href='https://blog.cetre.co.uk/genrify-python-app-to-filter-spotify-library-based-on-genre/'>Genrify</a>.
           You can use this project to see the genres of songs in your playlist and most listened to songs.
         </p>
       </div>

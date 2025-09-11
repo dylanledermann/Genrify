@@ -1,13 +1,12 @@
 'use client'
 
 import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
-import { redirect } from "next/navigation";
 
 
 const LogoutButton = () => {
     const handleLogout = async () => {
         try{
-            const res = await fetch(BASE_URL + API_PATHS.LOGOUT);
+            await fetch(BASE_URL + API_PATHS.LOGOUT);
             window.location.href='/';
         } catch(error) {
             console.log('Error occured: ', error);

@@ -1,13 +1,13 @@
 import { BASE_URL, API_PATHS } from "@/utils/apiPaths";
 import LogoutButton from "./LogoutButton";
-
+import Link from "next/link";
 
 const Navbar = async () => {
 
     const handleLogin = async () => {
         try{
             const data = await fetch(BASE_URL + API_PATHS.LOGIN).then(res => res.json());
-            var pfp = '';
+            let pfp = '';
             if(data.auth){
                 const res = await fetch(BASE_URL + API_PATHS.PROFILE).then(
                     res => {
@@ -18,7 +18,7 @@ const Navbar = async () => {
                             throw new Error('Res Error');
                         }
                     }
-                ).catch(error => console.log('An error occured'));
+                ).catch(error => console.log('An error occured', error));
                 if(res?.profilePicture.length === 0){
                     res.profilePicture = res.userProfile[0].toUpperCase();
                 }
@@ -34,9 +34,9 @@ const Navbar = async () => {
     return (
         <div className='w-full'>
             <div className='flex justify-between mx-5 mb-5 p-3 border-b-2 border-tertiary'>
-                <a className='text-4xl text-button self-center' href='/'>
+                <Link className='text-4xl text-button self-center' href='/'>
                     Genrify
-                </a>
+                </Link>
                 {!auth && <a className='btn-primary text-xl text-center' href={redirect}>Login</a>}
                 {auth && (
                     <div className='flex'>

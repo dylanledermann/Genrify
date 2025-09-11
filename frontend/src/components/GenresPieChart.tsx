@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { Suspense, useState } from "react";
 
 type Props = {
-    genres: any,
+    genres: [string, number][],
     callback: (genre: string | null) => void
 }
 
@@ -16,20 +16,22 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const GenresPieChart = ({genres, callback}: Props) => {
     const [prev, setPrev] = useState<string | null>(null)
+    const type = "pie" as const;
+    const themeMode = "dark" as const;
     const chartConfig = {
-        type: "pie",
+        type: type,
         series: genres.map((arr:[string, number])=>(
             arr[1]
         )),
         options: {
             theme: {
-                mode: 'dark',
+                mode: themeMode,
             },
             chart: {
                 events: {
-                    dataPointSelection: function(event: any, chartContext: any, config: { w: { config: { labels: { [x: string]: any; }; }; }; dataPointIndex: string | number; }) {
+                    dataPointSelection: function(event: object, chartContext: object, config: { w: { config: { labels: { [x: string]: string; }; }; }; dataPointIndex: string | number; }) {
                       // Get the label name
-                      var clickedValue = config.w.config.labels[config.dataPointIndex];
+                      const clickedValue = config.w.config.labels[config.dataPointIndex];
                       if(prev === clickedValue){
                         callback(null);
                         setPrev(null)
@@ -48,9 +50,6 @@ const GenresPieChart = ({genres, callback}: Props) => {
             labels: genres.map((arr:[string, number])=>(
                 arr[0]
             )),
-            title: {
-                show: "",
-            },
             dataLabels: {
                 enabled: false,
             },
@@ -68,8 +67,8 @@ const GenresPieChart = ({genres, callback}: Props) => {
                 <div className="w-16 h-16 bg-blue-500 rounded-full animate-pulse"></div>
             </div> 
         }>
-            <Card className="m-0 p-0 bg-secondary">
-                <CardBody className="mt-4 grid place-items-center px-2">
+            <Card className="m-0 p-0 bg-secondary" placeholder={undefined} onResize={undefined} onResizeCapture={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+                <CardBody className="mt-4 grid place-items-center px-2" placeholder={undefined} onResize={undefined} onResizeCapture={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                     <Chart {...chartConfig} />
                 </CardBody>
             </Card>

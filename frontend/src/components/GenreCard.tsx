@@ -2,24 +2,28 @@
 import { useContext } from "react";
 import GenresPieChart from "./GenresPieChart";
 import { PlaylistContext } from "@/app/contexts/PlaylistContext";
+import { artistsGenres, artistsTracks } from "@/utils/types";
 
 type Props = {
-    genres: any,
-    songs: any,
-    tracks: any
+    genres: artistsGenres,
+    songs: artistsTracks
 }
 
-const GenreCard = ({genres, songs, tracks}:  Props) => {
+const GenreCard = ({genres, songs}:  Props) => {
     const playlistContext = useContext(PlaylistContext);
     const sortGenres = () => {
-        const genreCounts = new Map()
+        const genreCounts = new Map<string, number>();
+        if(!genreCounts){
+            return [];
+        }
         if(genres === null || genres === undefined){
             return [];
         }
         Object.keys(genres).forEach((artist: string) => {
-            genres[artist].genres.forEach((genre: string[]) => {
+            genres[artist].genres.forEach((genre: string) => {
                 if(genreCounts.has(genre)){
-                    genreCounts.set(genre, genreCounts.get(genre)+songs[artist].length);
+                    const count = genreCounts.get(genre) || 0;
+                    genreCounts.set(genre, count+songs[artist].length);
                 }
                 else{
                     genreCounts.set(genre, songs[artist].length);
@@ -33,7 +37,7 @@ const GenreCard = ({genres, songs, tracks}:  Props) => {
             playlistContext?.setG();
             return;
         }
-        var t: string[][] = [];
+        const t: string[][] = [];
         Object.keys(genres).forEach((artist) => {
             genres[artist].genres.forEach((g: string) => {
                 if(g === genre){

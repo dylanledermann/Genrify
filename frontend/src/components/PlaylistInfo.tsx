@@ -4,6 +4,7 @@ import PlaylistCard from './PlaylistCard'
 import PlaylistsCard from './PlaylistsCard'
 import { redirect } from 'next/navigation'
 import PlaylistProvider from '@/app/contexts/PlaylistContext'
+import { playlistRes } from '@/utils/types'
 
 type Props = {
    search: {
@@ -14,7 +15,7 @@ type Props = {
 const PlaylistInfo = async ({search}: Props) => {
     
     const getSongs = async () => {
-        var query: string | string[] | undefined = ''
+        let query: string | string[] | undefined = ''
         if(search && 'search' in search){
             query=search['search'];
         }
@@ -28,11 +29,11 @@ const PlaylistInfo = async ({search}: Props) => {
                         throw new Error('Res Error');
                     }
                 }
-            ).catch(error => console.log('An error occured'));
+            ).catch(error => console.log('An error occured', error));
         return res;
     }
 
-    const topSongs = await getSongs();
+    const topSongs: playlistRes = await getSongs();
     const artistsGenres = topSongs?.artistsGenres;
     const tracks = topSongs?.tracks;
     const artistsTracks = topSongs?.artistsTracks;
@@ -43,7 +44,7 @@ const PlaylistInfo = async ({search}: Props) => {
         <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 justify-around'>
             <PlaylistProvider name={topSongs?.playlist} list={tracks}>
                 <PlaylistsCard/>
-                <GenreCard genres = {artistsGenres} songs = {artistsTracks} tracks = {tracks}/>
+                <GenreCard genres = {artistsGenres} songs = {artistsTracks}/>
                 <PlaylistCard/>
             </PlaylistProvider>
         </div>

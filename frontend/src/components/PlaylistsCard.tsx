@@ -1,4 +1,5 @@
 import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
+import { playlistsRes } from "@/utils/types";
 import Link from "next/link";
 
 
@@ -13,11 +14,11 @@ const PlaylistsCard = async () => {
                     throw new Error('Res Error');
                 }
             }
-        ).catch(error => console.log('An error occured'));
+        ).catch(error => console.log('An error occured', error));
         return res.playlists;
     }
 
-    const Playlists = await getPlaylists();
+    const Playlists: playlistsRes[] = await getPlaylists();
 
     return (
         <div className="col-span-2 lg:col-span-1 p-3 text-center bg-secondary rounded-lg">
