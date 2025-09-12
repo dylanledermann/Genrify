@@ -36,6 +36,8 @@ app.config['SESSION_COOKIE_PATH'] = '/'
 
 session_client = Session(app)
 
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
 # Cors for app
 CORS(app, 
      origins=['http://localhost:3000'],

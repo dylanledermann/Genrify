@@ -1,27 +1,28 @@
+import json
 import time, spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import RedisCacheHandler
-from config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE
+from config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE, redis_client
 from flask import session
 from collections import defaultdict
 
-def setTokenService(code):
+def tokenFromCode(code):
     spOAuth = SpotifyOAuth(
-        client_id = CLIENT_ID, 
+        client_id = CLIENT_ID,
         client_secret = CLIENT_SECRET,
         redirect_uri = REDIRECT_URI,
         scope=SCOPE,
         show_dialog=True
     )
-    token = spOAuth.get_access_token(code, as_dict=True)
-    session['token_info'] = token
+    return spOAuth.get_access_token(code, as_dict=True)
 
-def getTokenService():
-    tokenInfo = session.get('token_info', None)
-    if not tokenInfo:
+def getTokenService(sessionID):
+    token = redis_client.get(sessionID)
+    if not token:
         return None
+    token = json.loads(token.decode('utf-8'))
     now = int(time.time())
-    isExpired = tokenInfo['expires_at'] - now < 60
+    isExpired = token['expires_at'] - now < 60
     if isExpired:
         spOAuth = SpotifyOAuth(
             client_id = CLIENT_ID, 
@@ -30,11 +31,11 @@ def getTokenService():
             scope=SCOPE,
             show_dialog=True
         )
-        tokenInfo = spOAuth.refresh_access_token(tokenInfo['token_info']['refresh_token'])
-    return tokenInfo['token_info']['access_token']
+        token = spOAuth.refresh_access_token(token['refresh_token'])
+        redis_client.set(sessionID, json.dumps(token))
+    return token['access_token']
 
-def checkTokenService():
-    tokenInfo = getTokenService()
+def checkTokenService(tokenInfo):
     if not tokenInfo:
         spOAuth = SpotifyOAuth(
             client_id = CLIENT_ID, 
@@ -47,14 +48,14 @@ def checkTokenService():
         return None, authURL
     return True, "http://127.0.0.1:3000/profile"
 
-def getCurrentUserService():
-    sp = spotipy.Spotify(auth=getTokenService())
+def getCurrentUserService(token):
+    sp = spotipy.Spotify(auth=token)
     return sp.current_user()
 
-def getTopSongsService(): 
+def getTopSongsService(token): 
     t = defaultdict(list)
     orderedTracks = []
-    sp = spotipy.Spotify(auth=getTokenService())
+    sp = spotipy.Spotify(auth=token)
     tracks = sp.current_user_top_tracks(limit=50, time_range='short_term')
     for track in tracks['items']:
         artistId = track['artists'][0]['id']
@@ -68,9 +69,9 @@ def getTopSongsService():
         })
     return t, orderedTracks
     
-def getGenresService(artists):
+def getGenresService(token, artists):
     artistDict = {}
-    sp = spotipy.Spotify(auth=getTokenService())
+    sp = spotipy.Spotify(auth=token)
     artistsRes = sp.artists(artists)
     for a in artistsRes['artists']:
         artistDict[a['id']]=({
@@ -79,9 +80,9 @@ def getGenresService(artists):
         })
     return artistDict
 
-def getPlaylistsService():
+def getPlaylistsService(token):
     playlists = []
-    sp = spotipy.Spotify(auth=getTokenService())
+    sp = spotipy.Spotify(auth=token)
     req = sp.current_user_playlists()
     for playlist in req['items']:
         playlists.append({
@@ -91,10 +92,10 @@ def getPlaylistsService():
         })
     return playlists
 
-def getPlaylistService(playlistId):
+def getPlaylistService(token, playlistId):
     t = defaultdict(list)
     orderedTracks = []
-    sp = spotipy.Spotify(auth=getTokenService())
+    sp = spotipy.Spotify(auth=token)
     tracks = sp.playlist(playlistId, fields=None, market=None, additional_types=('track',))
     for item in tracks['tracks']['items']:
         track = item['track']
