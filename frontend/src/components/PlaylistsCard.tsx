@@ -1,11 +1,19 @@
 import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
 import { playlistsRes } from "@/utils/types";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 
 const PlaylistsCard = async () => {
     const getPlaylists = async () => {
-        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLISTS).then(
+        const cookieStore = await cookies();
+        const token = cookieStore.get('sessionID')?.value ?? '';
+        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLISTS, {
+            headers: {
+                Cookie: token
+            },
+            credentials: 'include'
+        }).then(
             res => {
                 if(res.ok){
                     return res.json()

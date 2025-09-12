@@ -12,11 +12,14 @@ export default async function Profile({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
   }) {
     const params = await searchParams;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('sessionID')?.value ?? '';
     const getProfile = async () => {
-        const cookieStore = cookies();
-        console.log((await cookieStore).getAll());
         const res = await fetch(BASE_URL + API_PATHS.PROFILE, {
-
+            headers: {
+                Cookie: token,
+            },
+            credentials: 'include',
         }).then(
             res => {
                 if(res.ok){

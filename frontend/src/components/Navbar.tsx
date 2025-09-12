@@ -1,34 +1,36 @@
 import { BASE_URL, API_PATHS } from "@/utils/apiPaths";
 import LogoutButton from "./LogoutButton";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 const Navbar = async () => {
 
     const handleLogin = async () => {
-        try{
-            const data = await fetch(BASE_URL + API_PATHS.LOGIN).then(res => res.json());
-            let pfp = '';
-            if(data.auth){
-                const res = await fetch(BASE_URL + API_PATHS.PROFILE).then(
-                    res => {
-                        if(res.ok){
-                            return res.json()
-                        }
-                        else{
-                            throw new Error('Res Error');
-                        }
-                    }
-                ).catch(error => console.log('An error occured', error));
-                if(res?.profilePicture.length === 0){
-                    res.profilePicture = res.userProfile[0].toUpperCase();
-                }
-                pfp = res.profilePicture;
+        const cookieStore = await cookies();
+        const token = cookieStore.get('sessionID')?.value ?? '';
+        const authRes = await fetch(BASE_URL + API_PATHS.LOGIN, {
+            headers: {
+                Cookie: token
             }
-            return [pfp, data.auth, data.redirect];
-        } catch(error) {
-            console.log('Error occured: ', error);
-            return [false, ''];
+        })
+            .then(res => res.json())
+            .catch(error => console.error("Error occured: ", error))
+        let redirect = authRes.redirect;
+        const auth = authRes.auth;
+        let pfp = null;
+        if(auth){
+            const profRes = await fetch(BASE_URL + API_PATHS.PROFILE, {
+                headers: {
+                    Cookie: token
+                }
+            })
+            .then(res => res.json())
+            .catch(error => console.error('Error occured: ', error))
+            pfp = profRes.profilePicture.length > 0 ? profRes.profilePicture[0] : profRes.userProfile[0].toUpperCase();
+            redirect = '/profile'
         }
+        
+        return [pfp, auth, redirect]
     }
     const [pfp, auth, redirect] = await handleLogin();
     return (

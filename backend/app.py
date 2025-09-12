@@ -1,6 +1,7 @@
-from flask import request, jsonify, redirect
-from config import app, db, redis_client
-from utils import spOAuth, sp, checkTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService
+import spotipy
+from flask import request, jsonify, redirect, session
+from config import app
+from utils import checkTokenService, getCurrentUserService, getTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService, setTokenService
 # Get spotify login
 @app.route("/api/login")
 def login():
@@ -9,26 +10,39 @@ def login():
 
 @app.route("/api/logout")
 def logout():
-    redis_client.delete('flask_cache_token_info')
+    # redis_client.delete('flask_cache_token_info')
+    session.clear()
     return jsonify({})
 
 # Callback for spotipy
 @app.route("/api/callback", methods=['GET'])
 def callback():
+    print(f"Session ID in profile: {session.sid if hasattr(session, 'sid') else 'No SID'}")
+    print(f"Session contents in profile: {dict(session)}")
+    print(f"Request headers: {dict(request.headers)}")
+    print(f"Cookies in request: {request.cookies}")
+
+
+    session.clear()
     code = request.args.get("code")
     if not code:
         return jsonify({"message": "No code given"}), 400
-    spOAuth.get_access_token(code, as_dict=True)
+    setTokenService(code)
     frontend_loc = "http://localhost:3000/profile"
     return redirect(frontend_loc)
 
 # Get all info needed for the user's profile
 @app.route("/api/profile", methods=["GET"])
 def profile():
+    print(f"Session ID in profile: {session.sid if hasattr(session, 'sid') else 'No SID'}")
+    print(f"Session contents in profile: {dict(session)}")
+    print(f"Request headers: {dict(request.headers)}")
+    print(f"Cookies in request: {request.cookies}")
+
     auth, redir = checkTokenService()
     if not auth:
         return jsonify({'error': 'Unauthorized'}), 401
-    userProfile = sp.current_user()
+    userProfile = getCurrentUserService()
     return jsonify({'userProfile': userProfile['display_name'], 'profilePicture': userProfile['images']})
 
 # Get 50 most played songs and their genres
@@ -70,7 +84,5 @@ def get_playlists():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
 
     app.run(debug=True)

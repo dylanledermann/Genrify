@@ -6,4 +6,5 @@ export const API_PATHS = {
     PROFILE: '/api/profile', // User profile
     GET_PLAYLIST: '/api/playlist', // Gets a playlist if given the id, otherwise gets the top songs
     GET_PLAYLISTS: '/api/playlists', // Gets user's 50 most recent playlists
+    EXCHANGE_TOKEN: '/api/exchange', // POST request to get the session ID from the backend
 }

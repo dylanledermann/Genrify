@@ -5,6 +5,7 @@ import PlaylistsCard from './PlaylistsCard'
 import { redirect } from 'next/navigation'
 import PlaylistProvider from '@/app/contexts/PlaylistContext'
 import { playlistRes } from '@/utils/types'
+import { cookies } from 'next/headers'
 
 type Props = {
    search: {
@@ -19,7 +20,14 @@ const PlaylistInfo = async ({search}: Props) => {
         if(search && 'search' in search){
             query=search['search'];
         }
-        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLIST + '?q=' + query)
+        const cookieStore = await cookies();
+        const token = cookieStore.get('sessionID')?.value ?? '';
+        const res = await fetch(BASE_URL + API_PATHS.GET_PLAYLIST + '?q=' + query, {
+            headers: {
+                Cookie: token,
+            },
+            credentials: 'include'
+        })
             .then(
                 res => {
                     if(res.ok){
