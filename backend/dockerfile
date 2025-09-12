@@ -1,0 +1,16 @@
+# Official python run time as a parent image
+FROM python:3.9-slim-buster
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy directory into working directory
+COPY . /app
+# Install packages from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port
+EXPOSE 5000
+
+# Run cmd to start the application
+CMD ['python', 'app.py']
