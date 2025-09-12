@@ -9,7 +9,7 @@ export default async function logout(){
     const token = cookieStore.get('sessionID')?.value ?? '';
     cookieStore.delete('sessionID');
 
-    const res = await fetch(BASE_URL + API_PATHS.LOGOUT, {
+    await fetch(BASE_URL + API_PATHS.LOGOUT, {
         headers: {
             Cookie: token,
         }

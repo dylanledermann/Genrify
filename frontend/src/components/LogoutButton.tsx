@@ -1,7 +1,6 @@
 'use client'
 
 import logout from "@/app/serverActions/logout";
-import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
 
 
 const LogoutButton = () => {
