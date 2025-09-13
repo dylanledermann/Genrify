@@ -1,16 +1,22 @@
 # Official python run time as a parent image
-FROM python:3.9-slim-buster
+FROM python:3.11.4-slim
+
+# Set user
+USER flask
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Copy directory into working directory
-COPY . /app
+COPY . /usr/src/app
 # Install packages from requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Expose port
 EXPOSE 5000
 
+# Use Flask entrypoint
+ENTRYPOINT ['flask']
+
 # Run cmd to start the application
-CMD ['python', 'app.py']
+CMD ['run']
