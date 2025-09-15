@@ -1,0 +1,60 @@
+services:
+# Redis server for caching
+  redis-server:
+    image: ${DOCKER_REGISTRY-}redis:latest
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - genrify-network
+
+# Backend Flask server
+  genrify-backend:
+    image: ${DOCKER_REGISTRY-}genrify-backend
+    secrets:
+      - spotipy_client_id
+      - spotipy_client_secret
+      - spotipy_redirect_uri
+      - scope
+      - db_url
+    ports:
+      - 5000:5000
+    depends_on:
+      - redis-server
+    networks:
+      - genrify-network
+  
+# Frontend NextJS app
+  genrify-frontend:
+    image: ${DOCKER_REGISTRY-}genrify-frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - genrify-backend
+    networks:
+      - genrify-network
+
+volumes:
+  redis_data:
+
+networks:
+  genrify-network:
+    external: true
+    name: genrify-network
+
+secrets:
+  spotipy_client_id:
+    external: true
+  spotipy_client_secret:
+    external: true
+  spotipy_redirect_uri:
+    external: true
+  scope:
+    external: true
+  db_url:
+    external: true
