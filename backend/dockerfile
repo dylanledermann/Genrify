@@ -5,10 +5,10 @@ FROM python:3.11.4-slim
 USER flask
 
 # Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy directory into working directory
-COPY . /usr/src/app
+COPY . /app
 # Install packages from requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
@@ -16,7 +16,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Use Flask entrypoint
-ENTRYPOINT ['flask']
+ENTRYPOINT ["flask"]
 
 # Run cmd to start the application
-CMD ['run']
+CMD ["run"]
