@@ -22,4 +22,5 @@ spotipy==2.25.1
 SQLAlchemy==2.0.43
 typing_extensions==4.15.0
 urllib3==2.5.0
+uuid==1.30
 Werkzeug==3.1.3
