@@ -19,10 +19,7 @@ USER app
 # Expose port
 EXPOSE 5000
 
-RUN redis-server --port 6376
-
 # Use Flask entrypoint
-ENTRYPOINT ["flask"]
 
 # Run cmd to start the application
-CMD ["run"]
+CMD ["python3", "app.py"]
