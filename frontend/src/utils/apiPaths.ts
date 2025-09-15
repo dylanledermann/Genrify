@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:5000';
+export const BASE_URL = 'http://genrify-backend:5000';
 
 export const API_PATHS = {
     LOGIN: '/api/login', // Redirects to Spotify login page if the user is not logged in
