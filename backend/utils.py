@@ -1,9 +1,7 @@
 import json
 import time, spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from spotipy.cache_handler import RedisCacheHandler
 from config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SCOPE, redis_client
-from flask import session
 from collections import defaultdict
 
 def tokenFromCode(code):
