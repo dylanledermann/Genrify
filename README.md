@@ -14,3 +14,13 @@ python3 app.py
 
 Start Redis server:
 redis-server --port 6376
+
+Build images:
+cd backend
+docker build -t genrify-backend .
+cd ../frontend
+docker build -t genrify-frontend .
+cd ..
+
+Start Docker stack(Need to create swarm, add secrets, and create network):
+Docker stack deploy --compose-file docker-compose.yaml genrify
