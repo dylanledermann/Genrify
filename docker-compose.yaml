@@ -39,6 +39,19 @@ services:
     networks:
       - genrify-network
 
+# Nginx Configuration
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    configs:
+      - source: nginx_conf
+        target: /etc/nginx/nginx.conf
+    depends_on:
+      - genrify-frontend
+    networks:
+      - genrify-network
+
 volumes:
   redis_data:
 
@@ -46,6 +59,10 @@ networks:
   genrify-network:
     external: true
     name: genrify-network
+
+configs:
+  nginx_conf:
+    file: ./nginx.conf
 
 secrets:
   spotipy_client_id:
