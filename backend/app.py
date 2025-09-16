@@ -1,7 +1,7 @@
 import json
-import spotipy
+from waitress import serve
 from uuid import uuid4
-from flask import request, jsonify, redirect, session
+from flask import request, jsonify, redirect
 from config import app, redis_client
 from utils import checkTokenService, getCurrentUserService, getTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService, tokenFromCode
 # Get spotify login
@@ -18,7 +18,6 @@ def logout():
     if not sessionID:
         return jsonify({'error', 'Bad Request'}), 404
     redis_client.delete(sessionID)
-    print(redis_client.get(sessionID))
     return jsonify({'message': 'success'})
 
 # Callback for spotipy
@@ -45,7 +44,6 @@ def exchange():
             return jsonify({'error': 'Token not found'}), 404
         redis_client.delete(exchangeToken)
         sessionID = str(uuid4())
-        print(sessionID)
         # Create sessionID and set it to expire after 1 day
         redis_client.setex(sessionID, 60*60*24, token)
         return jsonify({'sessionID': sessionID})
@@ -103,5 +101,4 @@ def get_playlists():
 #     pass
 
 if __name__ == "__main__":
-
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    serve(app, host='0.0.0.0', port=5000)
