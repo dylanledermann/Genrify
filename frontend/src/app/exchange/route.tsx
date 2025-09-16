@@ -13,7 +13,7 @@ export async function GET(request: { url: string | URL; }) {
 
     if(error){
         console.error('Error occured: ', error);
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect('/', {status:302});
     }
 
     if(token){
@@ -29,7 +29,7 @@ export async function GET(request: { url: string | URL; }) {
             secure: true,
             maxAge: 60 * 60 * 24
         });
-        return NextResponse.redirect(new URL('/profile', request.url));
+        return NextResponse.redirect('/profile', {status:302});
     }
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect('/', {status:302});
 }
