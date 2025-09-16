@@ -1,9 +1,6 @@
-from flask import Flask, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 from flask_cors import CORS
-from dotenv import load_dotenv
-from flask_session import Session
-import os, redis, time
+import redis, time
 
 # Get spotipy secrets from docker
 
@@ -23,27 +20,7 @@ DB_URL = getDockerSecret('db_url')
 # Init flask app
 app = Flask(__name__)
 
-# Init db
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Redis Setup with Sessions
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
-
-app.config['SESSION_REDIS'] = redis.from_url(DB_URL)
-app.config['SECRET_KEY'] = os.urandom(64)
-
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allows cross-origin
-app.config['SESSION_COOKIE_SECURE'] = False     # Set to True in production with HTTPS
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-
-app.config['SESSION_COOKIE_DOMAIN'] = None  # Let Flask handle it
-app.config['SESSION_COOKIE_PATH'] = '/'
-
-session_client = Session(app)
-print(DB_URL)
+# Init redis client connection
 # Retry to connect for 1 minute with 10 second intervals
 for _ in range(6):
      redis_client = redis.from_url(DB_URL)
@@ -56,7 +33,7 @@ for _ in range(6):
           print("Failed to connect to Redis")
      time.sleep(10)
 
-# Cors for app
+# CORS for app
 CORS(app, 
      origins=['http://genrify-frontend:3000'],
      supports_credentials=True)
