@@ -2,18 +2,20 @@
 
 import { API_PATHS, BASE_URL } from "@/utils/apiPaths";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 
-export async function GET(request: { url: string | URL; }) {
+export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token');
     const error = searchParams.get('error');
-
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
     if(error){
+        const redirectUrl = `${protocol}://${host}/`;
         console.error('Error occured: ', error);
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(redirectUrl);
     }
 
     if(token){
@@ -29,7 +31,10 @@ export async function GET(request: { url: string | URL; }) {
             secure: true,
             maxAge: 60 * 60 * 24
         });
-        return NextResponse.redirect(new URL('/profile', request.url));
+        const redirectUrl = `${protocol}://${host}/profile`;
+
+        return NextResponse.redirect(redirectUrl);
     }
-    return NextResponse.redirect(new URL('/', request.url));
+    const redirectUrl = `${protocol}://${host}/`;
+    return NextResponse.redirect(redirectUrl);
 }
