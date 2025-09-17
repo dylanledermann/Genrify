@@ -17,6 +17,7 @@ CLIENT_SECRET = getDockerSecret("spotipy_client_secret")
 REDIRECT_URI = getDockerSecret("spotipy_redirect_uri")
 SCOPE = getDockerSecret("scope")
 DB_URL = getDockerSecret('db_url')
+FRONTEND_URL = getDockerSecret('frontend_url')
 # Init flask app
 app = Flask(__name__)
 

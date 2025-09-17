@@ -2,7 +2,7 @@ import json
 from waitress import serve
 from uuid import uuid4
 from flask import request, jsonify, redirect
-from config import app, redis_client
+from config import app, redis_client, FRONTEND_URL
 from utils import checkTokenService, getCurrentUserService, getTokenService, getTopSongsService, getGenresService, getPlaylistsService, getPlaylistService, tokenFromCode
 # Get spotify login
 @app.route("/api/login")
@@ -25,11 +25,11 @@ def logout():
 def callback():
     code = request.args.get("code")
     if not code:
-        return jsonify({"message": "No code given"}), 400
+        return redirect(f'{FRONTEND_URL}')
     token = tokenFromCode(code)
     id = str(uuid4())
     redis_client.setex(id, 300, json.dumps(token))
-    frontend_loc = f"http://localhost:3000/exchange?token={id}"
+    frontend_loc = f"{FRONTEND_URL}exchange?token={id}"
     return redirect(frontend_loc)
 
 @app.route('/api/exchange', methods=['POST'])
@@ -101,4 +101,5 @@ def get_playlists():
 #     pass
 
 if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+    # serve(app, host='0.0.0.0', port=5000)

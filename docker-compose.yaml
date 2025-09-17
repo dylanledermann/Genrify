@@ -22,6 +22,7 @@ services:
       - spotipy_redirect_uri
       - scope
       - db_url
+      - frontend_url
     ports:
       - 5000:5000
     depends_on:
@@ -74,4 +75,6 @@ secrets:
   scope:
     external: true
   db_url:
+    external: true
+  frontend_url:
     external: true
