@@ -49,7 +49,7 @@ const PlaylistInfo = async ({search}: Props) => {
         redirect('/');
     }
     return (
-        <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 justify-around'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-3 justify-around'>
             <PlaylistProvider name={topSongs?.playlist} list={tracks}>
                 <PlaylistsCard/>
                 <GenreCard genres = {artistsGenres} songs = {artistsTracks}/>

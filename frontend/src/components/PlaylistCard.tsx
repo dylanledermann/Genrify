@@ -7,7 +7,7 @@ import { PlaylistContext } from "@/app/contexts/PlaylistContext";
 const PlaylistCard = () => {
     const playlistContext = useContext(PlaylistContext);
     return(
-        <div className="lg:col-span-1 col-span-2 flex flex-col p-3 bg-secondary rounded-lg">
+        <div className="md:col-span-1 col-span-2 flex flex-col p-3 bg-secondary rounded-lg">
             <div className="text-center w-full">
                 <div className="text-xl">
                     {playlistContext?.genre || playlistContext?.playlistName}
@@ -17,7 +17,7 @@ const PlaylistCard = () => {
                     <div className="w-full">Title</div>
                     <div className="w-full">Artist</div>
                 </div>
-                <div className="h-140 overflow-scroll">
+                <div className="h-160 overflow-y-scroll overflow-x-hidden">
                     {playlistContext?.genreList && playlistContext?.genreList.map((track: string[], index: number) => (
                         <SongCard key={index} number={index+1} artist={track[1]} track={track[3]} />
                     ))}

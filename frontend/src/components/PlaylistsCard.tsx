@@ -29,7 +29,7 @@ const PlaylistsCard = async () => {
     const Playlists: playlistsRes[] = await getPlaylists();
 
     return (
-        <div className="col-span-2 lg:col-span-1 p-3 text-center bg-secondary rounded-lg">
+        <div className="col-span-2 md:col-span-1 p-3 text-center bg-secondary rounded-lg">
             <div className="text-xl">
             Recent Playlists
             </div>
@@ -37,7 +37,7 @@ const PlaylistsCard = async () => {
                     <div className="w-full self-center ">Playlist</div>
                     <div className="w-fit p-2 self-center ">tracks</div>
                 </div>
-                <div className="h-220 overflow-scroll">
+                <div className="h-160 overflow-x-hidden text-sm">
                     {Playlists.map((obj: {id:string, name:string, total:number}, index: number) => (
                         <Link key={index} className="hover:cursor-pointer" href={`/profile?search=${obj.id}`}>
                             <div className="flex bg-tertiary rounded-lg p-2 m-2">
