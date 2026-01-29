@@ -68,7 +68,7 @@ const GenresPieChart = ({genres, callback}: Props) => {
             </div> 
         }>
             <Card className="m-0 p-0 bg-secondary" placeholder={undefined} onResize={undefined} onResizeCapture={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
-                <CardBody className="mt-4 grid place-items-center px-2" placeholder={undefined} onResize={undefined} onResizeCapture={undefined} onPointerLeaveCapture={undefined}>
+                <CardBody className="mt-4 grid place-items-center px-2" placeholder={undefined} onResize={undefined} onResizeCapture={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                     <Chart {...chartConfig} />
                 </CardBody>
             </Card>
