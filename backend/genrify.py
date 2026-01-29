@@ -230,7 +230,7 @@ def addToQueue(selectedGenre, selectedTrackIds, selectedTrackNames):
     print(f'Time Taken: { (time.perf_counter() - startTime) }')
 
 # Spotify authorization scopes
-scope = 'user-library-read user-follow-read user-modify-playback-state playlist-read-private playlist-modify-private'
+scope = 'user-library-read playlist-read-private user-read-playback-position user-top-read user-read-recently-played playlist-read-collaborative'
 
 # Initiate spotipy library
 spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
